@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const User = require('../modals/User');
-const { genToken } = require('../jwt');
+const { genToken,jwtAuthMiddleware } = require('../jwt');
 
 // user login router
 router.post('/signup',(req,res)=>{
@@ -48,6 +48,21 @@ router.post('/login',(req,res)=>{
     })
 
     
+})
+
+//User profile data route 
+router.get('/profile',jwtAuthMiddleware,(req,res)=>{
+    const userData = req.user;
+    const userid = userData.id
+    User.findById(userid)
+    .then( data=>{
+
+        res.status(200).json({data})
+    })
+    .catch(err=>{
+        console.log(err);
+        res.status(500).json({error:"Internal server error"})
+    })
 })
 
 module.exports = router;
