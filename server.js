@@ -6,7 +6,7 @@ require('dotenv').config();
 require('./db');
 
 // PORT for local
-PORT = 3000
+PORT = process.env.PORT
 
 // creating app object
 const app = express()
@@ -15,7 +15,11 @@ const app = express()
 app.use(bodyParser.json())
 app.get('/',(req,res)=>{res.send("Welcome to vote management system")})
 
+// use the routers
 app.use('/user',UserRoutes)
+
+
+//Listning to port 
 app.listen(PORT,()=>{
     console.log(`Listing to the port ${PORT}`)
 

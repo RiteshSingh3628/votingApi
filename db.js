@@ -1,6 +1,7 @@
 // creating mongooose conecction file
 const mongoose = require('mongoose')
-const mongoURL = 'mongodb://localhost:27017/votings'
+require('dotenv').config();
+const mongoURL = process.env.MONGOURL
 mongoose.connect(mongoURL)
 
 db = mongoose.connection

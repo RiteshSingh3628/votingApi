@@ -29,23 +29,27 @@ router.post('/signup',(req,res)=>{
 
 // login route
 
-router.post('/login',(req,res)=>{
-    const {aadharCardNumber,password} = req.body;
-    //find user by its username 
-    User.findOne({aadharCardNumber:aadharCardNumber})
-    .then(response=>{
-        if(!response || !response.comparePassword(password)){
-            return res.status(401).json({message:"Invalid username or password"})
+router.post('/login',async(req,res)=>{
+
+    try{
+        const {aadharCardNumber,password} = req.body;
+        //find user by its username 
+        const user = await User.findOne({aadharCardNumber:aadharCardNumber})
+        if(!user || !(await user.comparePassword(password))){
+            return res.status(400).json({message:"Invalid username or password"})
         }
         // generate token
         const payload = {
-            id:id
+            id:user.id
         }
         const token = genToken(payload);
-    })
-    .catch(err=>{
-        res.status(500).json({error:'Internal server'})
-    })
+        res.status(200).json({token})
+        
+
+    } 
+    catch(err){
+        res.status(500).send("Internal server error")
+    }
 
     
 })
@@ -63,6 +67,36 @@ router.get('/profile',jwtAuthMiddleware,(req,res)=>{
         console.log(err);
         res.status(500).json({error:"Internal server error"})
     })
+})
+
+// reset password router
+router.put('/profile/password',jwtAuthMiddleware,async (req,res)=>{
+    try{
+
+        const userId = req.user //Extracting id from token
+        const {currentPassword,newPassword} = req.body//Extracing the new password and crrnt password from body
+        
+        // find the user by userID
+        const user = await User.findById(userId)
+        // If password does not match than return error
+        
+        if(!(await user.comparePassword(currentPassword))){
+            return res.status(401).json({message:"Invalid username or password"})
+        }
+        // if current password is correct password then
+        user.password = newPassword
+        await user.save()
+        console.log("Password updated successfully")
+        res.status(200).json({message:"Password updated"})
+    }
+    catch(err){
+        res.status(500).json({error:'Internal server'})
+
+    }
+
+
+
+
 })
 
 module.exports = router;
