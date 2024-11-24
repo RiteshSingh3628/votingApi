@@ -75,9 +75,9 @@ router.put('/profile/password',jwtAuthMiddleware,async (req,res)=>{
 
         const userId = req.user //Extracting id from token
         const {currentPassword,newPassword} = req.body//Extracing the new password and crrnt password from body
-        
+        console.log(userId)
         // find the user by userID
-        const user = await User.findById(userId)
+        const user = await User.findById(userId.id)
         // If password does not match than return error
         
         if(!(await user.comparePassword(currentPassword))){
